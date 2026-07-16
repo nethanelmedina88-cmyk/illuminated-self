@@ -1,0 +1,12 @@
+allowBuilds:
+  '@parcel/watcher': set this to true or false
+  '@swc/core': set this to true or false
+  lmdb: set this to true or false
+  msgpackr-extract: set this to true or false
+dangerouslyAllowAllBuilds: true
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - "@swc/core"
+  - lmdb
+  - msgpackr-extract
+  - esbuild
