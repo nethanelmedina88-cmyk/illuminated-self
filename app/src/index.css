@@ -394,6 +394,83 @@ main {
   border-color: var(--accent);
 }
 
+/* ———— narration play buttons (KC101) ———— */
+
+.play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--accent-2);
+  flex-shrink: 0;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+}
+
+.play-btn svg {
+  margin-left: 1px;
+}
+
+.play-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.08);
+}
+
+.play-btn.is-playing {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--card);
+}
+
+.play-btn.is-playing svg {
+  margin-left: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .play-btn.is-playing {
+    animation: playpulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes playpulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(224, 163, 59, 0.35);
+    }
+    55% {
+      box-shadow: 0 0 0 8px rgba(224, 163, 59, 0);
+    }
+  }
+}
+
+.pillar-play {
+  margin-left: auto;
+}
+
+.quote-play {
+  align-self: flex-start;
+  margin-left: auto;
+}
+
+.faith-play {
+  margin-top: 10px;
+}
+
+.goal-play {
+  margin-left: auto;
+  align-self: flex-start;
+}
+
+.deck-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 /* ———— hero ———— */
 
 .hero {
@@ -802,7 +879,7 @@ main {
 
 .value-card header {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 13px;
   padding-bottom: 13px;

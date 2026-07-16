@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -20,7 +20,9 @@ import {
   Moon,
   MoonStar,
   Mountain,
+  Pause,
   PhoneOff,
+  Play,
   Quote,
   Salad,
   Scale,
@@ -212,6 +214,69 @@ function dayOfYear() {
 
 function longDate(d: Date) {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
+}
+
+/* ---------- narration (KC101 voice) ---------- */
+
+interface AudioState {
+  available: boolean
+  playing: string | null
+  toggle: (name: string) => void
+}
+
+const NarrationContext = createContext<AudioState>({ available: false, playing: null, toggle: () => {} })
+
+function useNarrationProvider(): AudioState {
+  const [available, setAvailable] = useState(false)
+  const [playing, setPlaying] = useState<string | null>(null)
+  const elRef = useRef<HTMLAudioElement | null>(null)
+  const playingRef = useRef<string | null>(null)
+  playingRef.current = playing
+
+  useEffect(() => {
+    fetch('audio/quote-01.mp3', { method: 'HEAD' })
+      .then((r) => setAvailable(r.ok))
+      .catch(() => setAvailable(false))
+  }, [])
+
+  const toggle = useCallback((name: string) => {
+    let el = elRef.current
+    if (!el) {
+      el = new Audio()
+      el.preload = 'none'
+      el.onended = () => setPlaying(null)
+      el.onerror = () => setPlaying(null)
+      elRef.current = el
+    }
+    if (playingRef.current === name) {
+      el.pause()
+      setPlaying(null)
+      return
+    }
+    el.src = `audio/${name}.mp3`
+    el.play()
+      .then(() => setPlaying(name))
+      .catch(() => setPlaying(null))
+  }, [])
+
+  return { available, playing, toggle }
+}
+
+function PlayButton({ name, label, className }: { name: string; label: string; className?: string }) {
+  const { available, playing, toggle } = useContext(NarrationContext)
+  if (!available) return null
+  const active = playing === name
+  return (
+    <button
+      type="button"
+      className={`play-btn ${active ? 'is-playing' : ''} ${className ?? ''}`}
+      onClick={() => toggle(name)}
+      aria-label={`${active ? 'Pause' : 'Listen'} — ${label}`}
+      title={active ? 'Pause' : 'Listen · KC101'}
+    >
+      {active ? <Pause size={13} strokeWidth={2} /> : <Play size={13} strokeWidth={2} />}
+    </button>
+  )
 }
 
 /* ---------- chrome ---------- */
@@ -455,7 +520,7 @@ function Hero() {
 function Values() {
   return (
     <div className="values-grid">
-      {VALUES.map((v) => (
+      {VALUES.map((v, i) => (
         <article key={v.en} className="value-card reveal">
           <header>
             <span className="value-icon">
@@ -468,6 +533,7 @@ function Values() {
             <span className="value-he" lang="he" dir="rtl">
               {v.he}
             </span>
+            <PlayButton name={`value-${pad(i + 1)}`} label={v.en} />
           </header>
           <p className="value-body-text">{v.body}</p>
           {v.quotes.map((q) => (
@@ -506,7 +572,7 @@ function DawnRitual() {
           and carry into the day.
         </p>
         <ol className="pillars">
-          {MORNING.map((p) => (
+          {MORNING.map((p, i) => (
             <li key={p.en} className="pillar reveal">
               <div className="pillar-main">
                 <div className="pillar-top">
@@ -517,6 +583,7 @@ function DawnRitual() {
                       {p.he}
                     </span>
                   </h3>
+                  <PlayButton name={`pillar-${pad(i + 1)}`} label={p.en} className="pillar-play" />
                 </div>
                 <p className="pillar-sub">{p.sub}</p>
                 <ul>
@@ -550,6 +617,7 @@ function DawnWords() {
           <p className="dawn-quote-en">{q.en}</p>
           <p className="dawn-quote-by">{q.by}</p>
         </div>
+        <PlayButton name={`quote-${pad(i + 1)}`} label={q.by} className="quote-play" />
       </div>
       <div className="deck-nav">
         <button type="button" onClick={() => setI((i - 1 + n) % n)} aria-label="Previous words">
@@ -973,9 +1041,12 @@ function Insights() {
           touch.current = null
         }}
       >
-        <p className="deck-count num">
-          {pad(i + 1)} <span>/ {pad(n)}</span>
-        </p>
+        <div className="deck-top">
+          <p className="deck-count num">
+            {pad(i + 1)} <span>/ {pad(n)}</span>
+          </p>
+          <PlayButton name={`insight-${pad(i + 1)}`} label={`Insight ${i + 1}`} />
+        </div>
         <p className="deck-text" key={i}>
           {INSIGHTS[i]}
         </p>
@@ -1039,11 +1110,12 @@ function Faith() {
             </h3>
             <p className="faith-sub">{p.sub}</p>
             <p className="faith-keys">{p.keywords.join(' · ')}</p>
+            <PlayButton name={`faith-${pad(i + 1)}`} label={p.en} className="faith-play" />
           </article>
         ))}
       </div>
       <div className="faith-list" role="list">
-        {FAITH.map((p) => (
+        {FAITH.map((p, i) => (
           <article key={p.en} className="faith-item reveal" role="listitem">
             <h3>
               <span lang="he" dir="rtl">
@@ -1053,6 +1125,7 @@ function Faith() {
             </h3>
             <p className="faith-sub">{p.sub}</p>
             <p className="faith-keys">{p.keywords.join(' · ')}</p>
+            <PlayButton name={`faith-${pad(i + 1)}`} label={p.en} className="faith-play" />
           </article>
         ))}
       </div>
@@ -1076,6 +1149,7 @@ function Vision() {
               <Icon name={g.icon} size={19} />
             </span>
             <span className="goal-text">{g.text}</span>
+            <PlayButton name={`goal-${pad(i + 1)}`} label={`Goal ${i + 1}`} className="goal-play" />
           </li>
         ))}
       </ol>
@@ -1098,8 +1172,10 @@ export default function App() {
   const [trainDone, setTrainDone] = usePersistedState<string[]>(`train-${weekKey()}`, [])
   const toggleSession = (id: string) =>
     setTrainDone((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  const narration = useNarrationProvider()
 
   return (
+    <NarrationContext.Provider value={narration}>
     <div className="shell">
       <Rail active={active} />
       <ChipBar active={active} />
@@ -1196,5 +1272,6 @@ export default function App() {
         </footer>
       </main>
     </div>
+    </NarrationContext.Provider>
   )
 }
