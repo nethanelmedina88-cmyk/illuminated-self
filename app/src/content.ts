@@ -164,76 +164,354 @@ export const MORNING: Pillar[] = [
   },
 ]
 
+/* Words for the dawn — Rav Kook and other souls of depth */
+
+export interface DawnQuote {
+  en: string
+  he?: string
+  by: string
+}
+
+export const DAWN_QUOTES: DawnQuote[] = [
+  {
+    en: 'The old shall be renewed, and the new shall be sanctified.',
+    he: 'הישן יתחדש והחדש יתקדש',
+    by: 'Rav Avraham Yitzchak HaCohen Kook',
+  },
+  {
+    en: 'The purely righteous do not complain about darkness — they add light.',
+    he: 'הצדיקים הטהורים אינם קובלים על החושך, אלא מוסיפים אור',
+    by: 'Rav Avraham Yitzchak HaCohen Kook',
+  },
+  {
+    en: 'The soul is always praying.',
+    he: 'הנשמה היא תמיד מתפללת',
+    by: 'Rav Avraham Yitzchak HaCohen Kook',
+  },
+  {
+    en: 'I do not speak because I have the power to speak; I speak because I do not have the power to stay silent.',
+    he: 'איני מדבר מפני שיש בכוחי לדבר, אלא מפני שאין בכוחי לשתוק',
+    by: 'Rav Avraham Yitzchak HaCohen Kook',
+  },
+  {
+    en: 'Every person must know and understand: a candle burns within them, and their candle is like no other.',
+    he: 'צריך שכל איש ידע ויבין, שבתוך תוכו דולק נר, ואין נרו שלו כנר חברו',
+    by: 'Rav Avraham Yitzchak HaCohen Kook',
+  },
+  {
+    en: 'The whole world is a very narrow bridge — and the essential thing is not to fear at all.',
+    he: 'כל העולם כולו גשר צר מאוד, והעיקר לא לפחד כלל',
+    by: 'Rebbe Nachman of Breslov',
+  },
+  {
+    en: 'Just to be is a blessing. Just to live is holy.',
+    by: 'Abraham Joshua Heschel',
+  },
+  {
+    en: 'If I am not for myself, who will be for me? And when I am only for myself, what am I? And if not now — when?',
+    he: 'אם אין אני לי, מי לי? וכשאני לעצמי, מה אני? ואם לא עכשיו, אימתי?',
+    by: 'Hillel the Elder · Pirkei Avot',
+  },
+  {
+    en: 'Who is mighty? The one who conquers his own impulse.',
+    he: 'איזהו גיבור? הכובש את יצרו',
+    by: 'Ben Zoma · Pirkei Avot',
+  },
+  {
+    en: 'When we are no longer able to change a situation, we are challenged to change ourselves.',
+    by: 'Viktor Frankl',
+  },
+  {
+    en: 'When you arise in the morning, think of what a precious privilege it is to be alive — to breathe, to think, to enjoy, to love.',
+    by: 'Marcus Aurelius',
+  },
+  {
+    en: 'All journeys have secret destinations of which the traveler is unaware.',
+    by: 'Martin Buber',
+  },
+]
+
+/* Nutrition — the daily menu with nutritional data per component */
+
 export interface FoodItem {
+  id: string
   name: string
   detail: string
+  emoji: string
+  kcal: number
+  protein: number
+  fat: number
+  carbs: number
+  micros: string[]
 }
 
 export interface FoodGroup {
   title: string
   he: string
-  icon: string
-  note?: string
   items: FoodItem[]
 }
 
-export const PROTEIN_ROTATION = [
-  { name: 'Beef sirloin', detail: '300 g', icon: 'beef' },
-  { name: 'Chicken breast', detail: '300 g', icon: 'drumstick' },
-  { name: 'Salmon fillet', detail: '300 g', icon: 'fish' },
+export const PROTEIN_ROTATION: FoodItem[] = [
+  {
+    id: 'beef',
+    name: 'Beef sirloin',
+    detail: '300 g',
+    emoji: '🥩',
+    kcal: 530,
+    protein: 78,
+    fat: 24,
+    carbs: 0,
+    micros: ['Iron', 'Zinc', 'Vitamin B12', 'Creatine'],
+  },
+  {
+    id: 'chicken',
+    name: 'Chicken breast',
+    detail: '300 g',
+    emoji: '🍗',
+    kcal: 495,
+    protein: 93,
+    fat: 11,
+    carbs: 0,
+    micros: ['Vitamin B6', 'Niacin', 'Selenium', 'Phosphorus'],
+  },
+  {
+    id: 'salmon',
+    name: 'Salmon fillet',
+    detail: '300 g',
+    emoji: '🐟',
+    kcal: 600,
+    protein: 61,
+    fat: 38,
+    carbs: 0,
+    micros: ['Omega-3', 'Vitamin D', 'Vitamin B12', 'Selenium'],
+  },
 ]
 
 export const NUTRITION: FoodGroup[] = [
   {
     title: 'Daily protein base',
     he: 'חלבון ובסיס יומי',
-    icon: 'egg',
     items: [
-      { name: '5 XL eggs', detail: 'whole eggs' },
-      { name: 'Pro yogurt cup', detail: '25 g protein' },
-      { name: 'Protein drink bottle', detail: '25 g protein' },
+      {
+        id: 'eggs',
+        name: '5 XL eggs',
+        detail: 'whole',
+        emoji: '🥚',
+        kcal: 390,
+        protein: 33,
+        fat: 27,
+        carbs: 2,
+        micros: ['Vitamin B12', 'Vitamin D', 'Vitamin A', 'Choline', 'Selenium', 'Iron'],
+      },
+      {
+        id: 'yogurt',
+        name: 'Pro yogurt cup',
+        detail: '25 g protein',
+        emoji: '🥛',
+        kcal: 155,
+        protein: 25,
+        fat: 3,
+        carbs: 9,
+        micros: ['Calcium', 'Vitamin B12'],
+      },
+      {
+        id: 'shake',
+        name: 'Protein drink',
+        detail: '25 g protein',
+        emoji: '🥤',
+        kcal: 140,
+        protein: 25,
+        fat: 2,
+        carbs: 6,
+        micros: ['Calcium'],
+      },
     ],
   },
   {
     title: 'Carbohydrates',
     he: 'פחמימות',
-    icon: 'wheat',
     items: [
-      { name: 'Cooked white rice', detail: '300 g' },
-      { name: 'Green apple', detail: 'medium' },
-      { name: 'Banana', detail: 'medium' },
+      {
+        id: 'rice',
+        name: 'White rice, cooked',
+        detail: '300 g',
+        emoji: '🍚',
+        kcal: 390,
+        protein: 8,
+        fat: 1,
+        carbs: 84,
+        micros: ['Manganese', 'Folate'],
+      },
+      {
+        id: 'apple',
+        name: 'Green apple',
+        detail: 'medium',
+        emoji: '🍏',
+        kcal: 95,
+        protein: 0,
+        fat: 0,
+        carbs: 25,
+        micros: ['Vitamin C', 'Potassium', 'Fiber'],
+      },
+      {
+        id: 'banana',
+        name: 'Banana',
+        detail: 'medium',
+        emoji: '🍌',
+        kcal: 105,
+        protein: 1,
+        fat: 0,
+        carbs: 27,
+        micros: ['Potassium', 'Vitamin B6', 'Vitamin C'],
+      },
     ],
   },
   {
     title: 'Fats & antioxidants',
     he: 'שומנים ונוגדי חמצון',
-    icon: 'sprout',
     items: [
-      { name: 'Avocado', detail: 'half, medium' },
-      { name: 'Walnuts', detail: '5 halves' },
-      { name: 'Blueberries', detail: '50 g' },
+      {
+        id: 'avocado',
+        name: 'Avocado',
+        detail: 'half, medium',
+        emoji: '🥑',
+        kcal: 160,
+        protein: 2,
+        fat: 15,
+        carbs: 9,
+        micros: ['Potassium', 'Vitamin E', 'Vitamin K', 'Folate', 'Fiber'],
+      },
+      {
+        id: 'walnuts',
+        name: 'Walnuts',
+        detail: '5 halves',
+        emoji: '🌰',
+        kcal: 130,
+        protein: 3,
+        fat: 13,
+        carbs: 3,
+        micros: ['Omega-3', 'Copper', 'Magnesium'],
+      },
+      {
+        id: 'blueberries',
+        name: 'Blueberries',
+        detail: '50 g',
+        emoji: '🫐',
+        kcal: 29,
+        protein: 0,
+        fat: 0,
+        carbs: 7,
+        micros: ['Vitamin C', 'Vitamin K', 'Antioxidants'],
+      },
     ],
   },
   {
     title: 'Vegetables & fluids',
     he: 'ירקות ונוזלים',
-    icon: 'carrot',
     items: [
-      { name: 'Broccoli', detail: '200 g · steamed' },
-      { name: 'Cucumber', detail: '1 unit' },
-      { name: 'Tomato', detail: '1 unit' },
-      { name: 'Lettuce', detail: 'daily portion' },
-      { name: 'Squeezed lemon', detail: '50 ml · dressing or drink' },
-      { name: 'Water only', detail: 'unlimited' },
+      {
+        id: 'broccoli',
+        name: 'Broccoli',
+        detail: '200 g · steamed',
+        emoji: '🥦',
+        kcal: 68,
+        protein: 6,
+        fat: 1,
+        carbs: 13,
+        micros: ['Vitamin C', 'Vitamin K', 'Folate', 'Fiber'],
+      },
+      {
+        id: 'cucumber',
+        name: 'Cucumber',
+        detail: '1 unit',
+        emoji: '🥒',
+        kcal: 30,
+        protein: 1,
+        fat: 0,
+        carbs: 7,
+        micros: ['Vitamin K'],
+      },
+      {
+        id: 'tomato',
+        name: 'Tomato',
+        detail: '1 unit',
+        emoji: '🍅',
+        kcal: 22,
+        protein: 1,
+        fat: 0,
+        carbs: 5,
+        micros: ['Vitamin C', 'Lycopene', 'Potassium'],
+      },
+      {
+        id: 'lettuce',
+        name: 'Lettuce',
+        detail: 'daily portion',
+        emoji: '🥬',
+        kcal: 15,
+        protein: 1,
+        fat: 0,
+        carbs: 3,
+        micros: ['Vitamin K', 'Vitamin A', 'Folate'],
+      },
+      {
+        id: 'lemon',
+        name: 'Squeezed lemon',
+        detail: '50 ml',
+        emoji: '🍋',
+        kcal: 11,
+        protein: 0,
+        fat: 0,
+        carbs: 4,
+        micros: ['Vitamin C'],
+      },
+      {
+        id: 'water',
+        name: 'Water only',
+        detail: 'unlimited',
+        emoji: '💧',
+        kcal: 0,
+        protein: 0,
+        fat: 0,
+        carbs: 0,
+        micros: ['Hydration'],
+      },
     ],
   },
 ]
+
+export const VITAMINS = [
+  'Vitamin A',
+  'Vitamin B6',
+  'Vitamin B12',
+  'Vitamin C',
+  'Vitamin D',
+  'Vitamin E',
+  'Vitamin K',
+  'Folate',
+  'Niacin',
+  'Choline',
+]
+
+export const MINERALS = [
+  'Iron',
+  'Zinc',
+  'Calcium',
+  'Selenium',
+  'Potassium',
+  'Magnesium',
+  'Manganese',
+  'Copper',
+  'Phosphorus',
+]
+
+/* Training */
 
 export interface Session {
   time: string
   title: string
   detail: string
   icon: string
+  plan: string[]
 }
 
 export interface TrainingDay {
@@ -244,14 +522,37 @@ export interface TrainingDay {
   sessions: Session[]
 }
 
+const CORE_30 = ['Plank · 3×60s', 'Hanging knee raises · 3×12', 'Cable crunch · 3×15', 'Side plank · 2×45s']
+const CORE_60 = [
+  'Circuit ×4 — rest 90s between rounds:',
+  'Plank · 60s',
+  'Leg raises · 15',
+  'Russian twists · 20',
+  'Dead bug · 12',
+  'Ab-wheel rollout · 10',
+]
+const RUN_60 = ['10 min easy warm-up', '40 min steady zone-2 pace', '10 min cool-down', 'Full-body stretch']
+
 export const WEEK: TrainingDay[] = [
   {
     en: 'Sunday',
     he: 'ראשון',
     short: 'Sun',
     sessions: [
-      { time: '06:00', title: 'Core', detail: '30 minutes of abs', icon: 'zap' },
-      { time: '12:00', title: 'Legs', detail: 'Quads & calves', icon: 'dumbbell' },
+      { time: '06:00', title: 'Core', detail: '30 minutes of abs', icon: 'zap', plan: CORE_30 },
+      {
+        time: '12:00',
+        title: 'Legs',
+        detail: 'Quads & calves',
+        icon: 'dumbbell',
+        plan: [
+          'Back squat · 4×8',
+          'Leg press · 3×12',
+          'Walking lunges · 3×20',
+          'Leg extension · 3×15',
+          'Standing calf raise · 4×15',
+        ],
+      },
     ],
   },
   {
@@ -259,8 +560,14 @@ export const WEEK: TrainingDay[] = [
     he: 'שני',
     short: 'Mon',
     sessions: [
-      { time: '06:00', title: 'Run', detail: '60 minutes of endurance', icon: 'footprints' },
-      { time: '12:00', title: 'Chest', detail: 'Strength session', icon: 'dumbbell' },
+      { time: '06:00', title: 'Run', detail: '60 minutes of endurance', icon: 'footprints', plan: RUN_60 },
+      {
+        time: '12:00',
+        title: 'Chest',
+        detail: 'Strength session',
+        icon: 'dumbbell',
+        plan: ['Bench press · 4×8', 'Incline dumbbell press · 3×10', 'Cable fly · 3×12', 'Dips · 3×max', 'Push-up finisher'],
+      },
     ],
   },
   {
@@ -268,8 +575,14 @@ export const WEEK: TrainingDay[] = [
     he: 'שלישי',
     short: 'Tue',
     sessions: [
-      { time: '06:00', title: 'Core', detail: '60 minutes of abs', icon: 'zap' },
-      { time: '12:00', title: 'Shoulders', detail: 'Strength session', icon: 'dumbbell' },
+      { time: '06:00', title: 'Core', detail: '60 minutes of abs', icon: 'zap', plan: CORE_60 },
+      {
+        time: '12:00',
+        title: 'Shoulders',
+        detail: 'Strength session',
+        icon: 'dumbbell',
+        plan: ['Overhead press · 4×8', 'Lateral raises · 4×12', 'Rear-delt fly · 3×15', 'Front raise · 3×12', 'Shrugs · 3×12'],
+      },
     ],
   },
   {
@@ -277,8 +590,14 @@ export const WEEK: TrainingDay[] = [
     he: 'רביעי',
     short: 'Wed',
     sessions: [
-      { time: '06:00', title: 'Run', detail: '60 minutes of endurance', icon: 'footprints' },
-      { time: '12:00', title: 'Back', detail: 'Strength session', icon: 'dumbbell' },
+      { time: '06:00', title: 'Run', detail: '60 minutes of endurance', icon: 'footprints', plan: RUN_60 },
+      {
+        time: '12:00',
+        title: 'Back',
+        detail: 'Strength session',
+        icon: 'dumbbell',
+        plan: ['Pull-ups · 4×max', 'Barbell row · 4×8', 'Lat pulldown · 3×10', 'Seated cable row · 3×12', 'Face pulls · 3×15'],
+      },
     ],
   },
   {
@@ -286,8 +605,20 @@ export const WEEK: TrainingDay[] = [
     he: 'חמישי',
     short: 'Thu',
     sessions: [
-      { time: '06:00', title: 'Core', detail: '30 minutes of abs', icon: 'zap' },
-      { time: '12:00', title: 'Legs', detail: 'Glutes & hamstrings', icon: 'dumbbell' },
+      { time: '06:00', title: 'Core', detail: '30 minutes of abs', icon: 'zap', plan: CORE_30 },
+      {
+        time: '12:00',
+        title: 'Legs',
+        detail: 'Glutes & battle ropes',
+        icon: 'dumbbell',
+        plan: [
+          'Hip thrust · 4×10',
+          'Romanian deadlift · 4×8',
+          'Bulgarian split squat · 3×10',
+          'Leg curl · 3×12',
+          'Battle ropes · 5×30s',
+        ],
+      },
     ],
   },
   {
@@ -295,8 +626,14 @@ export const WEEK: TrainingDay[] = [
     he: 'שישי',
     short: 'Fri',
     sessions: [
-      { time: '06:00', title: 'Run', detail: '60 minutes of endurance', icon: 'footprints' },
-      { time: '12:00', title: 'Arms', detail: 'Strength session', icon: 'dumbbell' },
+      { time: '06:00', title: 'Run', detail: '60 minutes of endurance', icon: 'footprints', plan: RUN_60 },
+      {
+        time: '12:00',
+        title: 'Arms',
+        detail: 'Strength session',
+        icon: 'dumbbell',
+        plan: ['Barbell curl · 4×10', 'Skull crushers · 4×10', 'Hammer curl · 3×12', 'Rope pushdown · 3×12', '21s finisher'],
+      },
     ],
   },
   {
@@ -304,53 +641,43 @@ export const WEEK: TrainingDay[] = [
     he: 'שבת',
     short: 'Sat',
     rest: true,
-    sessions: [{ time: 'All day', title: 'Rest', detail: 'The body has earned it too ♡', icon: 'sun' }],
+    sessions: [
+      {
+        time: 'All day',
+        title: 'Rest',
+        detail: 'The body has earned it too ♡',
+        icon: 'sun',
+        plan: ['Shabbat — full rest for body and soul'],
+      },
+    ],
   },
 ]
+
+/* Supplements — split along the arc of the day */
 
 export interface Supplement {
   name: string
   purpose: string
 }
 
-export interface SupplementGroup {
-  title: string
-  when: string
-  icon: string
-  items: Supplement[]
-}
-
-export const SUPPLEMENTS: SupplementGroup[] = [
-  {
-    title: 'Morning',
-    when: 'With a meal that contains fat',
-    icon: 'sunrise',
-    items: [
-      { name: 'K2 + D3', purpose: 'Bone & muscle health' },
-      { name: 'Omega-3', purpose: 'Heart & brain health' },
-      { name: 'Tongkat Ali', purpose: 'Energy & vitality' },
-      { name: 'Black Maca', purpose: 'Hormonal balance' },
-    ],
-  },
-  {
-    title: 'Evening',
-    when: 'Before sleep',
-    icon: 'moon',
-    items: [
-      { name: 'Magnesium bisglycinate', purpose: 'Deeper sleep & relaxation' },
-      { name: 'Ashwagandha', purpose: 'Less stress & anxiety' },
-    ],
-  },
-  {
-    title: 'Flexible',
-    when: 'Any time · after training',
-    icon: 'dumbbell',
-    items: [
-      { name: 'Zinc picolinate', purpose: 'Immune support' },
-      { name: 'Creatine · 7 g', purpose: 'Performance & muscle growth' },
-    ],
-  },
+export const SUPPLEMENTS_MORNING: Supplement[] = [
+  { name: 'K2 + D3', purpose: 'Bone & muscle health' },
+  { name: 'Omega-3', purpose: 'Heart & brain health' },
+  { name: 'Tongkat Ali', purpose: 'Energy & vitality' },
+  { name: 'Black Maca', purpose: 'Hormonal balance' },
 ]
+
+export const SUPPLEMENTS_EVENING: Supplement[] = [
+  { name: 'Magnesium bisglycinate', purpose: 'Deeper sleep & relaxation' },
+  { name: 'Ashwagandha', purpose: 'Less stress & anxiety' },
+]
+
+export const SUPPLEMENTS_TRAINING: Supplement[] = [
+  { name: 'Zinc picolinate', purpose: 'Immune support' },
+  { name: 'Creatine · 7 g', purpose: 'Performance & muscle growth' },
+]
+
+/* Faith — six practices around the circle */
 
 export interface Practice {
   he: string
@@ -371,6 +698,12 @@ export const FAITH: Practice[] = [
     en: 'Weekly Torah portion',
     sub: 'Study & depth',
     keywords: ['Inquiry', 'Meaning', 'Symbol'],
+  },
+  {
+    he: 'חברותא',
+    en: 'Chavruta',
+    sub: 'Learning in partnership · once a week',
+    keywords: ['A partner', 'A sugya', 'Friendship'],
   },
   {
     he: 'ברכת המזון',
@@ -404,26 +737,64 @@ export const INSIGHTS: string[] = [
   'People stay in toxic relationships because they are afraid of being alone.',
 ]
 
-export const VISION: string[] = [
-  'I walk like a peacock down the stream, shirtless — with greater muscle mass and a chiseled core.',
-  'I have created and built a partnership in which we are happy together, with a future that is beautiful and warm.',
-  'I have received letters, gifts and heartfelt thanks from my students — for being a principled, meaningful and professional teacher who led them to success, to values, and by personal example.',
-  'I have successfully launched MediLab — science, short and to the point.',
-  'I live with a calm and a clarity that recall the pure days after the first lockdown.',
-  'I have finished writing “A Brief History of Humankind and Israel.”',
-  'I have established a morning routine that begins at 05:30.',
-  'I keep to proper nutrition, following the scientific menu I built.',
-  'I have stopped watching pornography.',
-  'I have stepped out of the media — and out of the hypnosis of the social networks.',
+/* Vision 38 — goals, not checkboxes */
+
+export interface Goal {
+  text: string
+  icon: string
+}
+
+export const VISION: Goal[] = [
+  {
+    text: 'I walk like a peacock down the stream, shirtless — with greater muscle mass and a chiseled core.',
+    icon: 'dumbbell',
+  },
+  {
+    text: 'I have created and built a partnership in which we are happy together, with a future that is beautiful and warm.',
+    icon: 'heart',
+  },
+  {
+    text: 'I have received letters, gifts and heartfelt thanks from my students — for being a principled, meaningful and professional teacher who led them to success, to values, and by personal example.',
+    icon: 'graduation-cap',
+  },
+  {
+    text: 'I have successfully launched MediLab — science, short and to the point.',
+    icon: 'flask',
+  },
+  {
+    text: 'I live with a calm and a clarity that recall the pure days after the first lockdown.',
+    icon: 'waves',
+  },
+  {
+    text: 'I have finished writing “A Brief History of Humankind and Israel.”',
+    icon: 'book-open',
+  },
+  {
+    text: 'I have established a morning routine that begins at 05:30.',
+    icon: 'sunrise',
+  },
+  {
+    text: 'I keep to proper nutrition, following the scientific menu I built.',
+    icon: 'salad',
+  },
+  {
+    text: 'I have stopped watching pornography.',
+    icon: 'shield-check',
+  },
+  {
+    text: 'I have stepped out of the media — and out of the hypnosis of the social networks.',
+    icon: 'phone-off',
+  },
 ]
 
+/* Navigation — the arc of the day */
+
 export const NAV = [
-  { id: 'values', num: 'I', label: 'The Nine Values', scale: 'The ground' },
-  { id: 'morning', num: 'II', label: 'Morning Ritual', scale: 'The day' },
-  { id: 'nutrition', num: 'III', label: 'Daily Fuel', scale: 'The day' },
-  { id: 'supplements', num: 'IV', label: 'Supplements', scale: 'The day' },
-  { id: 'training', num: 'V', label: 'The Training Week', scale: 'The week' },
-  { id: 'faith', num: 'VI', label: 'Faith & Jewish Life', scale: 'The week' },
-  { id: 'insights', num: 'VII', label: 'Nine Insights', scale: 'The mind' },
-  { id: 'vision', num: 'VIII', label: 'Vision 38', scale: 'The life' },
+  { id: 'values', num: 'I', label: 'The Ground', he: 'הקרקע', time: 'Always', mark: 'mountain' },
+  { id: 'dawn', num: 'II', label: 'Dawn', he: 'שחר', time: '05:30', mark: 'sunrise' },
+  { id: 'morning', num: 'III', label: 'Morning', he: 'בוקר', time: '06:00–09:00', mark: 'sun' },
+  { id: 'noon', num: 'IV', label: 'Noon', he: 'צהריים', time: '12:00', mark: 'sun' },
+  { id: 'afternoon', num: 'V', label: 'Afternoon', he: 'אחר הצהריים', time: '16:00', mark: 'cloud-sun' },
+  { id: 'evening', num: 'VI', label: 'Evening', he: 'ערב', time: '19:00', mark: 'sunset' },
+  { id: 'night', num: 'VII', label: 'Night', he: 'לילה', time: '22:00', mark: 'moon-star' },
 ]

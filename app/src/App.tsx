@@ -2,45 +2,55 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
-  Beef,
   BookOpen,
-  Carrot,
   Check,
   ChevronDown,
+  CloudSun,
   Compass,
-  Drumstick,
   Dumbbell,
-  Egg,
   Feather,
-  Fish,
   Flame,
+  FlaskConical,
   Footprints,
   Gift,
+  GraduationCap,
   Hammer,
   Heart,
   HeartHandshake,
   Moon,
+  MoonStar,
+  Mountain,
+  PhoneOff,
+  Quote,
+  Salad,
   Scale,
+  ShieldCheck,
   Smile,
-  Sprout,
   Sun,
   Sunrise,
+  Sunset,
   Waves,
-  Wheat,
   Wind,
   Zap,
 } from 'lucide-react'
 import {
+  DAWN_QUOTES,
   FAITH,
   INSIGHTS,
+  MINERALS,
   MORNING,
   NAV,
   NUTRITION,
   PROTEIN_ROTATION,
-  SUPPLEMENTS,
+  SUPPLEMENTS_EVENING,
+  SUPPLEMENTS_MORNING,
+  SUPPLEMENTS_TRAINING,
   VALUES,
   VISION,
-  WEEK,
+  VITAMINS,
+  WEEK as WEEKDATA,
+  type FoodItem,
+  type Supplement,
 } from './content'
 
 const ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>> = {
@@ -57,18 +67,20 @@ const ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: n
   wind: Wind,
   'book-open': BookOpen,
   heart: Heart,
-  egg: Egg,
-  wheat: Wheat,
-  sprout: Sprout,
-  carrot: Carrot,
-  beef: Beef,
-  drumstick: Drumstick,
-  fish: Fish,
   zap: Zap,
   dumbbell: Dumbbell,
   footprints: Footprints,
   sun: Sun,
   moon: Moon,
+  mountain: Mountain,
+  'cloud-sun': CloudSun,
+  sunset: Sunset,
+  'moon-star': MoonStar,
+  'graduation-cap': GraduationCap,
+  flask: FlaskConical,
+  salad: Salad,
+  'shield-check': ShieldCheck,
+  'phone-off': PhoneOff,
 }
 
 function Icon({ name, size = 20, className }: { name: string; size?: number; className?: string }) {
@@ -76,9 +88,9 @@ function Icon({ name, size = 20, className }: { name: string; size?: number; cla
   return <C size={size} strokeWidth={1.75} className={className} />
 }
 
-/* ---------- small hooks ---------- */
+/* ---------- small hooks & helpers ---------- */
 
-function usePersistedState<T>(key: string, initial: T): [T, (v: T) => void] {
+function usePersistedState<T>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] {
   const [state, setState] = useState<T>(() => {
     try {
       const raw = window.localStorage.getItem(key)
@@ -89,13 +101,16 @@ function usePersistedState<T>(key: string, initial: T): [T, (v: T) => void] {
     return initial
   })
   const set = useCallback(
-    (v: T) => {
-      setState(v)
-      try {
-        window.localStorage.setItem(key, JSON.stringify(v))
-      } catch {
-        /* ignore */
-      }
+    (v: T | ((prev: T) => T)) => {
+      setState((prev) => {
+        const next = typeof v === 'function' ? (v as (p: T) => T)(prev) : v
+        try {
+          window.localStorage.setItem(key, JSON.stringify(next))
+        } catch {
+          /* ignore */
+        }
+        return next
+      })
     },
     [key],
   )
@@ -136,7 +151,7 @@ function useScrollSpy(ids: string[]) {
           setActive(visible[0].target.id)
         }
       },
-      { rootMargin: '-30% 0px -55% 0px' },
+      { rootMargin: '-25% 0px -60% 0px' },
     )
     ids.forEach((id) => {
       const el = document.getElementById(id)
@@ -170,9 +185,23 @@ function useCountdownTo0530() {
   return `${pad(h)}:${pad(m)}:${pad(s)}`
 }
 
-function todayKey() {
-  const d = new Date()
+function dateKey(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+function todayKey() {
+  return dateKey(new Date())
+}
+
+function weekDates() {
+  const now = new Date()
+  const sunday = new Date(now)
+  sunday.setDate(now.getDate() - now.getDay())
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(sunday)
+    d.setDate(sunday.getDate() + i)
+    return d
+  })
 }
 
 function dayOfYear() {
@@ -181,30 +210,72 @@ function dayOfYear() {
   return Math.floor((now.getTime() - start.getTime()) / 86400000)
 }
 
+function longDate(d: Date) {
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
+}
+
 /* ---------- chrome ---------- */
 
-function Rail({ active }: { active: string }) {
-  let lastScale = ''
+function ThemeToggle() {
+  const [mode, setMode] = useState<'light' | 'dark' | null>(() => {
+    try {
+      const raw = window.localStorage.getItem('theme')
+      return raw === 'light' || raw === 'dark' ? raw : null
+    } catch {
+      return null
+    }
+  })
+  useEffect(() => {
+    const root = document.documentElement
+    if (mode) {
+      root.setAttribute('data-theme', mode)
+      try {
+        window.localStorage.setItem('theme', mode)
+      } catch {
+        /* ignore */
+      }
+    } else {
+      root.removeAttribute('data-theme')
+    }
+  }, [mode])
+  const effective =
+    mode ?? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  const next = effective === 'dark' ? 'light' : 'dark'
   return (
-    <nav className="rail" aria-label="Chapters">
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={() => setMode(next)}
+      aria-label={next === 'dark' ? 'Switch to night light' : 'Switch to daylight'}
+      title={next === 'dark' ? 'Night light · תאורת לילה' : 'Daylight · תאורת יום'}
+    >
+      {next === 'dark' ? <Moon size={19} strokeWidth={1.75} /> : <Sun size={19} strokeWidth={1.75} />}
+    </button>
+  )
+}
+
+function Rail({ active }: { active: string }) {
+  return (
+    <nav className="rail" aria-label="Parts of the day">
       <a className="rail-brand" href="#top">
         <SunMark size={22} />
         <span>The Illuminated Self</span>
       </a>
       <ul>
-        {NAV.map((item) => {
-          const showScale = item.scale !== lastScale
-          lastScale = item.scale
-          return (
-            <li key={item.id}>
-              {showScale && <div className="rail-scale">{item.scale}</div>}
-              <a href={`#${item.id}`} className={active === item.id ? 'is-active' : ''}>
-                <span className="rail-num">{item.num}</span>
-                <span>{item.label}</span>
-              </a>
-            </li>
-          )
-        })}
+        {NAV.map((item) => (
+          <li key={item.id}>
+            <a href={`#${item.id}`} className={active === item.id ? 'is-active' : ''}>
+              <span className="rail-num">{item.num}</span>
+              <span className="rail-label">
+                {item.label}
+                <span className="rail-he" lang="he" dir="rtl">
+                  {item.he}
+                </span>
+              </span>
+              <span className="rail-time num">{item.time}</span>
+            </a>
+          </li>
+        ))}
       </ul>
       <div className="rail-foot" lang="he" dir="rtl">
         האני המואר
@@ -215,7 +286,7 @@ function Rail({ active }: { active: string }) {
 
 function ChipBar({ active }: { active: string }) {
   return (
-    <nav className="chipbar" aria-label="Chapters">
+    <nav className="chipbar" aria-label="Parts of the day">
       {NAV.map((item) => (
         <a key={item.id} href={`#${item.id}`} className={active === item.id ? 'is-active' : ''}>
           <span className="rail-num">{item.num}</span> {item.label}
@@ -254,7 +325,6 @@ function SunMark({ size = 28 }: { size?: number }) {
 
 function Chapter({
   id,
-  eyebrow,
   title,
   he,
   lede,
@@ -262,20 +332,27 @@ function Chapter({
   tone,
 }: {
   id: string
-  eyebrow: string
   title: string
   he: string
   lede?: string
   children: React.ReactNode
-  tone?: 'ink' | 'dawn'
+  tone?: 'ink' | 'night'
 }) {
-  const num = NAV.find((n) => n.id === id)?.num
+  const nav = NAV.find((n) => n.id === id)
   return (
     <section id={id} className={`chapter ${tone ? `tone-${tone}` : ''}`}>
+      <div className="daymark" aria-hidden="true">
+        <span className="daymark-line" />
+        <span className="daymark-icon">
+          <Icon name={nav?.mark ?? 'sun'} size={19} />
+        </span>
+        <span className="daymark-time num">{nav?.time}</span>
+        <span className="daymark-line" />
+      </div>
       <div className="chapter-inner">
         <header className="chapter-head reveal">
           <p className="eyebrow">
-            <span className="eyebrow-num">{num}</span> {eyebrow}
+            <span className="eyebrow-num">{nav?.num}</span> {nav?.label}
           </p>
           <h2>
             {title}
@@ -288,6 +365,32 @@ function Chapter({
         {children}
       </div>
     </section>
+  )
+}
+
+function Block({
+  title,
+  he,
+  children,
+  className,
+}: {
+  title: string
+  he?: string
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={`block ${className ?? ''}`}>
+      <div className="block-head reveal">
+        <h3>{title}</h3>
+        {he && (
+          <span lang="he" dir="rtl">
+            {he}
+          </span>
+        )}
+      </div>
+      {children}
+    </div>
   )
 }
 
@@ -314,8 +417,8 @@ function Hero() {
           האני המואר
         </p>
         <p className="hero-lede reveal">
-          Nine values, one dawn ritual, a disciplined body and a faithful heart — the living map of who I am,
-          and of who I am becoming by thirty-eight.
+          One day, lived deliberately — from the first light at 05:30 to the last thought before sleep. Nine
+          values beneath it, a faithful heart within it, and a horizon called thirty-eight ahead of it.
         </p>
         <dl className="hero-stats reveal">
           <div>
@@ -331,138 +434,420 @@ function Hero() {
             <dd>6</dd>
           </div>
           <div>
-            <dt>Supplements</dt>
-            <dd>8</dd>
+            <dt>Faith practices</dt>
+            <dd>6</dd>
           </div>
           <div>
-            <dt>Victories by 38</dt>
+            <dt>Goals for 38</dt>
             <dd>10</dd>
           </div>
         </dl>
       </div>
-      <a className="hero-cue" href="#values" aria-label="Scroll to the values">
+      <a className="hero-cue" href="#values" aria-label="Begin the day">
         <ChevronDown size={22} strokeWidth={1.5} />
       </a>
     </header>
   )
 }
 
-/* ---------- I · values ---------- */
+/* ---------- I · the ground / values ---------- */
 
 function Values() {
-  const [open, setOpen] = useState<number | null>(null)
   return (
     <div className="values-grid">
-      {VALUES.map((v, i) => {
-        const isOpen = open === i
-        return (
-          <article key={v.en} className={`value-card reveal ${isOpen ? 'is-open' : ''}`}>
-            <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : i)}>
-              <span className="value-icon">
-                <Icon name={v.icon} size={20} />
-              </span>
-              <span className="value-names">
-                <span className="value-en">{v.en}</span>
-                <span className="value-essence">{v.essence}</span>
-              </span>
-              <span className="value-he" lang="he" dir="rtl">
-                {v.he}
-              </span>
-              <ChevronDown className="value-chev" size={18} strokeWidth={1.75} />
-            </button>
-            <div className="value-body" hidden={!isOpen}>
-              <p>{v.body}</p>
-              {v.quotes.map((q) => (
-                <blockquote key={q.by + q.text.slice(0, 12)}>
-                  <p>“{q.text}”</p>
-                  <cite>{q.by}</cite>
-                </blockquote>
-              ))}
+      {VALUES.map((v) => (
+        <article key={v.en} className="value-card reveal">
+          <header>
+            <span className="value-icon">
+              <Icon name={v.icon} size={20} />
+            </span>
+            <div className="value-names">
+              <span className="value-en">{v.en}</span>
+              <span className="value-essence">{v.essence}</span>
             </div>
-          </article>
-        )
-      })}
+            <span className="value-he" lang="he" dir="rtl">
+              {v.he}
+            </span>
+          </header>
+          <p className="value-body-text">{v.body}</p>
+          {v.quotes.map((q) => (
+            <blockquote key={q.by + q.text.slice(0, 12)}>
+              <p>“{q.text}”</p>
+              <cite>{q.by}</cite>
+            </blockquote>
+          ))}
+        </article>
+      ))}
     </div>
   )
 }
 
-/* ---------- II · morning ---------- */
+/* ---------- II · dawn ---------- */
 
-function Morning() {
+function DawnRitual() {
   const countdown = useCountdownTo0530()
-  const [done, setDone] = usePersistedState<boolean[]>(`morning-${todayKey()}`, [false, false, false, false])
-  const count = done.filter(Boolean).length
   return (
     <div className="morning">
       <aside className="morning-side reveal">
         <div className="clock-card">
-          <p className="clock-label">Next dawn ritual in</p>
+          <p className="clock-label">Next dawn in</p>
           <p className="clock-time num">{countdown}</p>
           <p className="clock-sub">Every morning · 05:30</p>
         </div>
-        <div className="morning-progress" role="status">
-          <div className="bar">
-            <div className="bar-fill" style={{ width: `${(count / 4) * 100}%` }} />
-          </div>
-          <p>
-            <strong>{count} of 4</strong> pillars complete today{count === 4 ? ' — the day is yours.' : '.'}
-          </p>
+        <div className="breath reveal" aria-hidden="true">
+          <div className="breath-ring" />
+          <p className="breath-word">breathe</p>
         </div>
+        <p className="breath-note">Four counts in · four counts out. Nothing to achieve here.</p>
       </aside>
-      <ol className="pillars">
-        {MORNING.map((p, i) => (
-          <li key={p.en} className={`pillar reveal ${done[i] ? 'is-done' : ''}`}>
-            <button
-              type="button"
-              className="pillar-check"
-              aria-pressed={done[i]}
-              aria-label={`Mark ${p.en} as ${done[i] ? 'not done' : 'done'}`}
-              onClick={() => setDone(done.map((d, j) => (j === i ? !d : d)))}
-            >
-              <Check size={15} strokeWidth={2.5} />
-            </button>
-            <div className="pillar-main">
-              <div className="pillar-top">
-                <Icon name={p.icon} size={18} className="pillar-icon" />
-                <h3>
-                  {p.en}
-                  <span lang="he" dir="rtl">
-                    {p.he}
-                  </span>
-                </h3>
+      <div className="pillars-wrap">
+        <p className="being-note reveal">
+          These are not tasks to check off. They are four ways of <em>being</em> — states to enter, dwell in,
+          and carry into the day.
+        </p>
+        <ol className="pillars">
+          {MORNING.map((p) => (
+            <li key={p.en} className="pillar reveal">
+              <div className="pillar-main">
+                <div className="pillar-top">
+                  <Icon name={p.icon} size={18} className="pillar-icon" />
+                  <h3>
+                    {p.en}
+                    <span lang="he" dir="rtl">
+                      {p.he}
+                    </span>
+                  </h3>
+                </div>
+                <p className="pillar-sub">{p.sub}</p>
+                <ul>
+                  {p.points.map((pt) => (
+                    <li key={pt}>{pt}</li>
+                  ))}
+                </ul>
               </div>
-              <p className="pillar-sub">{p.sub}</p>
-              <ul>
-                {p.points.map((pt) => (
-                  <li key={pt}>{pt}</li>
-                ))}
-              </ul>
-            </div>
-          </li>
-        ))}
-      </ol>
+            </li>
+          ))}
+        </ol>
+      </div>
     </div>
   )
 }
 
-/* ---------- III · nutrition ---------- */
-
-function Nutrition() {
-  const [sel, setSel] = useState(() => dayOfYear() % PROTEIN_ROTATION.length)
-  const cut = PROTEIN_ROTATION[sel]
+function DawnWords() {
+  const n = DAWN_QUOTES.length
+  const [i, setI] = useState(() => dayOfYear() % n)
+  const q = DAWN_QUOTES[i]
   return (
-    <div className="nutrition">
+    <div className="dawn-words reveal">
+      <div className="dawn-quote">
+        <Quote size={20} className="dawn-quote-mark" aria-hidden="true" />
+        <div className="dawn-quote-body" key={i}>
+          {q.he && (
+            <p className="dawn-quote-he" lang="he" dir="rtl">
+              {q.he}
+            </p>
+          )}
+          <p className="dawn-quote-en">{q.en}</p>
+          <p className="dawn-quote-by">{q.by}</p>
+        </div>
+      </div>
+      <div className="deck-nav">
+        <button type="button" onClick={() => setI((i - 1 + n) % n)} aria-label="Previous words">
+          <ArrowLeft size={18} strokeWidth={1.75} />
+        </button>
+        <p className="dawn-count num">
+          Word {pad(i + 1)} <span>/ {pad(n)}</span> — today’s falls by the date
+        </p>
+        <button type="button" onClick={() => setI((i + 1) % n)} aria-label="Next words">
+          <ArrowRight size={18} strokeWidth={1.75} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- shared: supplements & sessions ---------- */
+
+function SuppList({ items }: { items: Supplement[] }) {
+  return (
+    <ul className="supp-list">
+      {items.map((s) => (
+        <li key={s.name} className="reveal">
+          <strong>{s.name}</strong>
+          <span>{s.purpose}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function SessionCard({
+  time,
+  title,
+  detail,
+  icon,
+  plan,
+  done,
+  onToggle,
+  variant,
+  isToday,
+}: {
+  time: string
+  title: string
+  detail: string
+  icon: string
+  plan: string[]
+  done?: boolean
+  onToggle?: () => void
+  variant: 'dawn' | 'noon'
+  isToday?: boolean
+}) {
+  return (
+    <div className={`session session-${variant} ${isToday ? 'is-today' : ''}`}>
+      <div className="session-head">
+        <p className="session-time num">{time}</p>
+        {onToggle && (
+          <button
+            type="button"
+            className={`session-done ${done ? 'is-done' : ''}`}
+            aria-pressed={done}
+            onClick={onToggle}
+            title={done ? 'Completed — click to undo' : 'Mark completed'}
+          >
+            <Check size={13} strokeWidth={2.5} />
+            <span>{done ? 'Done' : 'Mark'}</span>
+          </button>
+        )}
+      </div>
+      <div className="session-body">
+        <Icon name={icon} size={20} className="session-icon" />
+        <div>
+          <p className="session-title">{title}</p>
+          <p className="session-detail">{detail}</p>
+        </div>
+      </div>
+      <ul className="session-plan">
+        {plan.map((x) => (
+          <li key={x}>{x}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/* ---------- III · morning ---------- */
+
+function MorningPart({
+  done,
+  toggle,
+}: {
+  done: string[]
+  toggle: (id: string) => void
+}) {
+  const t = new Date().getDay()
+  const day = WEEKDATA[t]
+  const s = day.sessions[0]
+  const id = `${t}-0`
+  return (
+    <>
+      <Block title="First training of the day" he="אימון בוקר">
+        <div className="today-session reveal">
+          {day.rest ? (
+            <div className="rest-card">
+              <Sun size={22} strokeWidth={1.5} />
+              <p>
+                Shabbat — no training today. <span lang="he">גם לגוף מגיע ♡</span>
+              </p>
+            </div>
+          ) : (
+            <SessionCard
+              time={s.time}
+              title={s.title}
+              detail={s.detail}
+              icon={s.icon}
+              plan={s.plan}
+              variant="dawn"
+              isToday
+              done={done.includes(id)}
+              onToggle={() => toggle(id)}
+            />
+          )}
+        </div>
+      </Block>
+      <Block title="With breakfast — a meal that contains fat" he="תוספי בוקר">
+        <SuppList items={SUPPLEMENTS_MORNING} />
+      </Block>
+    </>
+  )
+}
+
+/* ---------- IV · noon: training ---------- */
+
+function Training({ done, toggle }: { done: string[]; toggle: (id: string) => void }) {
+  const today = new Date().getDay()
+  const [sel, setSel] = useState(today)
+  const day = WEEKDATA[sel]
+  const dates = weekDates()
+  const totalSessions = WEEKDATA.reduce((acc, d) => acc + (d.rest ? 0 : d.sessions.length), 0)
+  const doneCount = done.filter((id) => {
+    const dIdx = Number(id.split('-')[0])
+    return !WEEKDATA[dIdx]?.rest
+  }).length
+  return (
+    <div className="training">
+      <div className="train-meter reveal">
+        <div className="train-meter-text">
+          <p className="card-kicker">This week</p>
+          <p>
+            <strong className="num">
+              {doneCount} / {totalSessions}
+            </strong>{' '}
+            sessions completed
+          </p>
+        </div>
+        <div className="bar">
+          <div className="bar-fill" style={{ width: `${(doneCount / totalSessions) * 100}%` }} />
+        </div>
+        <p className="train-motto">
+          Strength · Endurance · Balance. <em>Commit. Persist. Succeed.</em>
+        </p>
+      </div>
+      <div className="day-chips reveal" role="tablist" aria-label="Training days">
+        {WEEKDATA.map((d, i) => (
+          <button
+            key={d.en}
+            role="tab"
+            aria-selected={sel === i}
+            className={`${sel === i ? 'is-active' : ''} ${d.rest ? 'is-rest' : ''} ${i === today ? 'is-today' : ''}`}
+            onClick={() => setSel(i)}
+          >
+            <span className="chip-date num">{dates[i].getDate()}</span>
+            <span className="chip-day">{d.short}</span>
+            <span className="chip-he" lang="he">
+              {d.he}
+            </span>
+          </button>
+        ))}
+      </div>
+      <div className={`day-panel reveal ${day.rest ? 'is-rest' : ''}`}>
+        <h3>
+          {day.en} · <span className="num day-date">{longDate(dates[sel])}</span>
+          {sel === today && <span className="chip-today">today</span>}
+          <span lang="he" dir="rtl">
+            יום {day.he}
+          </span>
+        </h3>
+        <div className="sessions">
+          {day.sessions.map((s, si) => {
+            const id = `${sel}-${si}`
+            return (
+              <SessionCard
+                key={id}
+                time={s.time}
+                title={s.title}
+                detail={s.detail}
+                icon={s.icon}
+                plan={s.plan}
+                variant={si === 0 ? 'dawn' : 'noon'}
+                done={done.includes(id)}
+                onToggle={day.rest ? undefined : () => toggle(id)}
+              />
+            )
+          })}
+        </div>
+        {day.rest && <p className="rest-note">Shabbat — full rest for body and soul.</p>}
+      </div>
+      <div className="after-training reveal">
+        <p className="card-kicker">After training · flexible</p>
+        <div className="after-chips">
+          {SUPPLEMENTS_TRAINING.map((s) => (
+            <span key={s.name} className="after-chip">
+              <strong>{s.name}</strong> — {s.purpose}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- IV · noon: fuel / menu builder ---------- */
+
+function macroPct(eaten: number, plan: number) {
+  if (plan <= 0) return 0
+  return Math.round((eaten / plan) * 100)
+}
+
+function Fuel() {
+  const [eaten, setEaten] = usePersistedState<string[]>(`eaten-${todayKey()}`, [])
+  const [cutId, setCutId] = usePersistedState<string>(`cut-${todayKey()}`, PROTEIN_ROTATION[dayOfYear() % 3].id)
+  const cut = PROTEIN_ROTATION.find((p) => p.id === cutId) ?? PROTEIN_ROTATION[0]
+
+  const toggleItem = (id: string) => {
+    setEaten((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  }
+
+  const planItems: FoodItem[] = useMemo(
+    () => [cut, ...NUTRITION.flatMap((g) => g.items)],
+    [cut],
+  )
+  const eatenItems = planItems.filter((it) => eaten.includes(it.id))
+  const sum = (items: FoodItem[], k: 'kcal' | 'protein' | 'fat' | 'carbs') =>
+    items.reduce((a, it) => a + it[k], 0)
+  const plan = {
+    kcal: sum(planItems, 'kcal'),
+    protein: sum(planItems, 'protein'),
+    fat: sum(planItems, 'fat'),
+    carbs: sum(planItems, 'carbs'),
+  }
+  const got = {
+    kcal: sum(eatenItems, 'kcal'),
+    protein: sum(eatenItems, 'protein'),
+    fat: sum(eatenItems, 'fat'),
+    carbs: sum(eatenItems, 'carbs'),
+  }
+  const planMicros = new Set(planItems.flatMap((it) => it.micros))
+  const gotMicros = new Set(eatenItems.flatMap((it) => it.micros))
+  const vitamins = VITAMINS.filter((v) => planMicros.has(v))
+  const minerals = MINERALS.filter((m) => planMicros.has(m))
+  const vitPct = vitamins.length ? Math.round((vitamins.filter((v) => gotMicros.has(v)).length / vitamins.length) * 100) : 0
+  const minPct = minerals.length ? Math.round((minerals.filter((m) => gotMicros.has(m)).length / minerals.length) * 100) : 0
+  const overall = macroPct(got.kcal, plan.kcal)
+
+  const bars = [
+    { label: 'Protein', he: 'חלבון', got: got.protein, plan: plan.protein, unit: 'g' },
+    { label: 'Essential fats', he: 'שומנים', got: got.fat, plan: plan.fat, unit: 'g' },
+    { label: 'Carbohydrates', he: 'פחמימות', got: got.carbs, plan: plan.carbs, unit: 'g' },
+    { label: 'Calories', he: 'קלוריות', got: got.kcal, plan: plan.kcal, unit: 'kcal' },
+  ]
+
+  return (
+    <div className="fuel">
+      <p className="fuel-note reveal">
+        Tap what you have eaten today — the plate fills, and the day’s nutrition adds itself up below.
+      </p>
       <div className="protein-card reveal">
         <div className="protein-head">
           <p className="card-kicker">Main protein · rotates daily</p>
-          <p className="protein-today">
-            Today’s cut: <strong>{cut.name}</strong> · <span className="num">{cut.detail}</span>
-          </p>
+          <button
+            type="button"
+            className={`eat-toggle ${eaten.includes(cut.id) ? 'is-eaten' : ''}`}
+            onClick={() => toggleItem(cut.id)}
+          >
+            <Check size={13} strokeWidth={2.5} /> {eaten.includes(cut.id) ? 'Eaten' : 'I ate it'}
+          </button>
         </div>
         <div className="protein-options" role="group" aria-label="Protein rotation">
-          {PROTEIN_ROTATION.map((p, i) => (
-            <button key={p.name} type="button" className={i === sel ? 'is-active' : ''} onClick={() => setSel(i)}>
-              <Icon name={p.icon} size={22} />
+          {PROTEIN_ROTATION.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={p.id === cut.id ? 'is-active' : ''}
+              onClick={() => setCutId(p.id)}
+            >
+              <span className="food-emoji" aria-hidden="true">
+                {p.emoji}
+              </span>
               <span>{p.name}</span>
               <span className="num">{p.detail}</span>
             </button>
@@ -473,7 +858,6 @@ function Nutrition() {
         {NUTRITION.map((g) => (
           <article key={g.title} className="food-card reveal">
             <header>
-              <Icon name={g.icon} size={19} className="food-icon" />
               <h3>
                 {g.title}
                 <span lang="he" dir="rtl">
@@ -482,127 +866,145 @@ function Nutrition() {
               </h3>
             </header>
             <ul>
-              {g.items.map((it) => (
-                <li key={it.name}>
-                  <span>{it.name}</span>
-                  <span className="dots" aria-hidden="true" />
-                  <span className="num">{it.detail}</span>
-                </li>
-              ))}
+              {g.items.map((it) => {
+                const isEaten = eaten.includes(it.id)
+                return (
+                  <li key={it.id}>
+                    <button
+                      type="button"
+                      className={`food-item ${isEaten ? 'is-eaten' : ''}`}
+                      aria-pressed={isEaten}
+                      onClick={() => toggleItem(it.id)}
+                    >
+                      <span className="food-emoji" aria-hidden="true">
+                        {it.emoji}
+                      </span>
+                      <span className="food-name">{it.name}</span>
+                      <span className="dots" aria-hidden="true" />
+                      <span className="num">{it.detail}</span>
+                      <span className="food-check">
+                        <Check size={12} strokeWidth={3} />
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
             </ul>
           </article>
         ))}
       </div>
-    </div>
-  )
-}
-
-/* ---------- IV · supplements ---------- */
-
-function Supplements() {
-  return (
-    <div className="supp-grid">
-      {SUPPLEMENTS.map((g) => (
-        <article key={g.title} className="supp-card reveal">
-          <header>
-            <span className="supp-icon">
-              <Icon name={g.icon} size={19} />
-            </span>
-            <div>
-              <h3>{g.title}</h3>
-              <p>{g.when}</p>
-            </div>
-          </header>
-          <ul>
-            {g.items.map((s) => (
-              <li key={s.name}>
-                <strong>{s.name}</strong>
-                <span>{s.purpose}</span>
-              </li>
-            ))}
-          </ul>
-        </article>
-      ))}
-    </div>
-  )
-}
-
-/* ---------- V · training ---------- */
-
-function Training() {
-  const [sel, setSel] = useState(() => new Date().getDay())
-  const day = WEEK[sel]
-  const today = new Date().getDay()
-  return (
-    <div className="training">
-      <p className="training-motto reveal">
-        Strength · Endurance · Balance — a winning routine begins with a plan. <em>Commit. Persist. Succeed.</em>
-      </p>
-      <div className="day-chips reveal" role="tablist" aria-label="Training days">
-        {WEEK.map((d, i) => (
-          <button
-            key={d.en}
-            role="tab"
-            aria-selected={sel === i}
-            className={`${sel === i ? 'is-active' : ''} ${d.rest ? 'is-rest' : ''}`}
-            onClick={() => setSel(i)}
-          >
-            <span className="chip-day">{d.short}</span>
-            <span className="chip-he" lang="he">
-              {d.he}
-            </span>
-            {i === today && <span className="chip-today">today</span>}
-          </button>
-        ))}
-      </div>
-      <div className={`day-panel reveal ${day.rest ? 'is-rest' : ''}`}>
-        <h3>
-          {day.en}
-          <span lang="he" dir="rtl">
-            יום {day.he}
-          </span>
-        </h3>
-        <div className="sessions">
-          {day.sessions.map((s) => (
-            <div key={s.time + s.title} className="session">
-              <p className="session-time num">{s.time}</p>
-              <div className="session-body">
-                <Icon name={s.icon} size={20} className="session-icon" />
-                <div>
-                  <p className="session-title">{s.title}</p>
-                  <p className="session-detail">{s.detail}</p>
-                </div>
+      <div className="fuel-summary reveal">
+        <div className="fuel-summary-head">
+          <h3>What I ate today</h3>
+          <p className="fuel-overall">
+            <strong className="num">{overall}%</strong> of the daily menu
+          </p>
+        </div>
+        <div className="macro-bars">
+          {bars.map((b) => (
+            <div key={b.label} className="macro-row">
+              <span className="macro-label">
+                {b.label}
+                <span lang="he" dir="rtl">
+                  {b.he}
+                </span>
+              </span>
+              <div className="bar">
+                <div className="bar-fill" style={{ width: `${Math.min(100, macroPct(b.got, b.plan))}%` }} />
               </div>
+              <span className="macro-nums num">
+                {Math.round(b.got)} / {Math.round(b.plan)} {b.unit} · {macroPct(b.got, b.plan)}%
+              </span>
             </div>
           ))}
         </div>
-        {day.rest && <p className="rest-note">Shabbat — full rest for body and soul.</p>}
+        <div className="micro-wrap">
+          <div className="micro-group">
+            <p className="card-kicker">
+              Vitamins · <span className="num">{vitPct}%</span>
+            </p>
+            <div className="micro-chips">
+              {vitamins.map((v) => (
+                <span key={v} className={`micro-chip ${gotMicros.has(v) ? 'is-got' : ''}`}>
+                  {v.replace('Vitamin ', '')}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="micro-group">
+            <p className="card-kicker">
+              Minerals · <span className="num">{minPct}%</span>
+            </p>
+            <div className="micro-chips">
+              {minerals.map((m) => (
+                <span key={m} className={`micro-chip ${gotMicros.has(m) ? 'is-got' : ''}`}>
+                  {m}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <p className="fuel-close">
+          Summary: <strong className="num">{overall}%</strong> energy · <strong className="num">{macroPct(got.protein, plan.protein)}%</strong> protein ·{' '}
+          <strong className="num">{macroPct(got.fat, plan.fat)}%</strong> fats · <strong className="num">{macroPct(got.carbs, plan.carbs)}%</strong> carbs ·{' '}
+          <strong className="num">{vitPct}%</strong> vitamins · <strong className="num">{minPct}%</strong> minerals
+        </p>
       </div>
-      <ul className="week-strip reveal" aria-label="Week at a glance">
-        {WEEK.map((d, i) => (
-          <li key={d.en} className={sel === i ? 'is-active' : ''}>
-            <button type="button" onClick={() => setSel(i)}>
-              <span className="strip-day">{d.short}</span>
-              {d.rest ? (
-                <span className="strip-rest">Rest</span>
-              ) : (
-                <>
-                  <span>{d.sessions[0].title}</span>
-                  <span>{d.sessions[1].title}</span>
-                </>
-              )}
-            </button>
-          </li>
-        ))}
-      </ul>
-      <p className="training-close reveal">
-        Today’s discipline — tomorrow’s results. You are stronger than you think. <em>Yalla, let’s do this.</em>
-      </p>
     </div>
   )
 }
 
-/* ---------- VI · faith ---------- */
+/* ---------- V · afternoon: insights ---------- */
+
+function Insights() {
+  const [i, setI] = useState(0)
+  const n = INSIGHTS.length
+  const go = useCallback((d: number) => setI((prev) => (prev + d + n) % n), [n])
+  const touch = useRef<number | null>(null)
+  return (
+    <div className="deck reveal">
+      <div
+        className="deck-card"
+        onTouchStart={(e) => (touch.current = e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          if (touch.current == null) return
+          const dx = e.changedTouches[0].clientX - touch.current
+          if (Math.abs(dx) > 48) go(dx < 0 ? 1 : -1)
+          touch.current = null
+        }}
+      >
+        <p className="deck-count num">
+          {pad(i + 1)} <span>/ {pad(n)}</span>
+        </p>
+        <p className="deck-text" key={i}>
+          {INSIGHTS[i]}
+        </p>
+        <p className="deck-hint">Hard-earned. Written down so I never pay for it twice.</p>
+      </div>
+      <div className="deck-nav">
+        <button type="button" onClick={() => go(-1)} aria-label="Previous insight">
+          <ArrowLeft size={18} strokeWidth={1.75} />
+        </button>
+        <div className="deck-dots" aria-hidden="true">
+          {INSIGHTS.map((_, d) => (
+            <button
+              key={d}
+              type="button"
+              className={d === i ? 'is-active' : ''}
+              onClick={() => setI(d)}
+              tabIndex={-1}
+            />
+          ))}
+        </div>
+        <button type="button" onClick={() => go(1)} aria-label="Next insight">
+          <ArrowRight size={18} strokeWidth={1.75} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- VI · evening: faith ---------- */
 
 function StarOfDavid({ size = 44 }: { size?: number }) {
   return (
@@ -658,92 +1060,22 @@ function Faith() {
   )
 }
 
-/* ---------- VII · insights ---------- */
-
-function Insights() {
-  const [i, setI] = useState(0)
-  const n = INSIGHTS.length
-  const go = useCallback((d: number) => setI((prev) => (prev + d + n) % n), [n])
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') go(1)
-      if (e.key === 'ArrowLeft') go(-1)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [go])
-  const touch = useRef<number | null>(null)
-  return (
-    <div className="deck reveal">
-      <div
-        className="deck-card"
-        onTouchStart={(e) => (touch.current = e.touches[0].clientX)}
-        onTouchEnd={(e) => {
-          if (touch.current == null) return
-          const dx = e.changedTouches[0].clientX - touch.current
-          if (Math.abs(dx) > 48) go(dx < 0 ? 1 : -1)
-          touch.current = null
-        }}
-      >
-        <p className="deck-count num">
-          {pad(i + 1)} <span>/ {pad(n)}</span>
-        </p>
-        <p className="deck-text" key={i}>
-          {INSIGHTS[i]}
-        </p>
-        <p className="deck-hint">Hard-earned. Written down so I never pay for it twice.</p>
-      </div>
-      <div className="deck-nav">
-        <button type="button" onClick={() => go(-1)} aria-label="Previous insight">
-          <ArrowLeft size={18} strokeWidth={1.75} />
-        </button>
-        <div className="deck-dots" aria-hidden="true">
-          {INSIGHTS.map((_, d) => (
-            <button
-              key={d}
-              type="button"
-              className={d === i ? 'is-active' : ''}
-              onClick={() => setI(d)}
-              tabIndex={-1}
-            />
-          ))}
-        </div>
-        <button type="button" onClick={() => go(1)} aria-label="Next insight">
-          <ArrowRight size={18} strokeWidth={1.75} />
-        </button>
-      </div>
-    </div>
-  )
-}
-
-/* ---------- VIII · vision ---------- */
+/* ---------- VII · night: vision ---------- */
 
 function Vision() {
-  const [done, setDone] = usePersistedState<boolean[]>('vision38-ledger', Array(VISION.length).fill(false))
-  const count = done.filter(Boolean).length
   return (
     <div className="vision">
-      <div className="vision-meter reveal">
-        <div className="bar">
-          <div className="bar-fill" style={{ width: `${(count / VISION.length) * 100}%` }} />
-        </div>
-        <p>
-          <strong className="num">
-            {count} / {VISION.length}
-          </strong>{' '}
-          already true today
-          {count === VISION.length ? ' — the vision is lived.' : '. Mark each one as it becomes real.'}
-        </p>
+      <div className="night-sky" aria-hidden="true">
+        <div className="shoot" />
+        <div className="shoot shoot-2" />
       </div>
       <ol className="vision-list">
-        {VISION.map((v, i) => (
-          <li key={i} className={`reveal ${done[i] ? 'is-done' : ''}`}>
-            <button type="button" aria-pressed={done[i]} onClick={() => setDone(done.map((d, j) => (j === i ? !d : d)))}>
-              <span className="vision-check">
-                <Check size={14} strokeWidth={2.5} />
-              </span>
-              <span className="vision-text">{v}</span>
-            </button>
+        {VISION.map((g, i) => (
+          <li key={i} className="goal-card reveal">
+            <span className="goal-icon">
+              <Icon name={g.icon} size={19} />
+            </span>
+            <span className="goal-text">{g.text}</span>
           </li>
         ))}
       </ol>
@@ -753,94 +1085,103 @@ function Vision() {
 
 /* ---------- app ---------- */
 
+function weekKey() {
+  const now = new Date()
+  const sunday = new Date(now)
+  sunday.setDate(now.getDate() - now.getDay())
+  return dateKey(sunday)
+}
+
 export default function App() {
   useReveal()
   const active = useScrollSpy(useMemo(() => NAV.map((n) => n.id), []))
+  const [trainDone, setTrainDone] = usePersistedState<string[]>(`train-${weekKey()}`, [])
+  const toggleSession = (id: string) =>
+    setTrainDone((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+
   return (
     <div className="shell">
       <Rail active={active} />
       <ChipBar active={active} />
+      <ThemeToggle />
       <main>
         <Hero />
 
         <Chapter
           id="values"
-          eyebrow="The ground"
           title="The Nine Values"
           he="הערכים שלי"
-          lede="Everything else stands on these. Each one is written as a declaration — open it to read the full vow and the words that guard it."
+          lede="The ground beneath every hour of the day. Each value is written in full — a declaration, and the words that guard it. Nothing is hidden."
         >
           <Values />
         </Chapter>
 
         <Chapter
+          id="dawn"
+          title="Dawn Ritual"
+          he="שגרת שחר"
+          lede="The day is won in its first hour — not by doing, but by being. Four states to inhabit before the world wakes."
+        >
+          <DawnRitual />
+          <Block title="Words for the dawn" he="דברי רוח לבוקר">
+            <p className="block-lede reveal">
+              A daily reading — Rav Kook and other souls of depth. One thought to carry into the light.
+            </p>
+            <DawnWords />
+          </Block>
+        </Chapter>
+
+        <Chapter
           id="morning"
-          eyebrow="The day"
-          title="Morning Ritual"
-          he="שגרת הבוקר"
-          lede="The day is won in its first hour. Four pillars, every morning, beginning at 05:30."
+          title="Morning"
+          he="בוקר"
+          lede="First light, first movement, first fuel — the quiet hours that set the tone."
         >
-          <Morning />
+          <MorningPart done={trainDone} toggle={toggleSession} />
         </Chapter>
 
         <Chapter
-          id="nutrition"
-          eyebrow="The day"
-          title="Daily Fuel"
-          he="התזונה היומית"
-          lede="A scientific menu, built once and followed daily — water only, nothing wasted."
+          id="noon"
+          title="Noon"
+          he="צהריים"
+          lede="The heart of the day: iron at twelve, and the scientific menu that powers all of it."
         >
-          <Nutrition />
+          <Block title="The training week" he="תכנית האימונים">
+            <Training done={trainDone} toggle={toggleSession} />
+          </Block>
+          <Block title="Daily fuel — build your plate" he="התזונה היומית">
+            <Fuel />
+          </Block>
         </Chapter>
 
         <Chapter
-          id="supplements"
-          eyebrow="The day"
-          title="Supplements"
-          he="תוספי תזונה"
-          lede="Timed to the body’s clock: with the morning fat, before sleep, and around training."
-        >
-          <Supplements />
-        </Chapter>
-
-        <Chapter
-          id="training"
-          eyebrow="The week"
-          title="The Training Week"
-          he="תכנית האימונים"
-          lede="Two sessions a day, six days a week — dawn for the core and the lungs, noon for the iron. Shabbat rests."
-        >
-          <Training />
-        </Chapter>
-
-        <Chapter
-          id="faith"
-          eyebrow="The week"
-          title="Faith & Jewish Life"
-          he="מעגל האמונה"
-          lede="The circle that holds the week together — from the morning’s tefillin to the candles of Shabbat."
-          tone="ink"
-        >
-          <Faith />
-        </Chapter>
-
-        <Chapter
-          id="insights"
-          eyebrow="The mind"
-          title="Nine Insights"
-          he="תובנות"
-          lede="Truths that cost something to learn. Swipe or use the arrows."
+          id="afternoon"
+          title="Afternoon"
+          he="אחר הצהריים"
+          lede="The mind’s walking hours — truths that cost something to learn, kept sharp."
         >
           <Insights />
         </Chapter>
 
         <Chapter
-          id="vision"
-          eyebrow="The life"
+          id="evening"
+          title="Evening"
+          he="ערב"
+          lede="The circle that holds the week together — and the quiet chemistry of a deep night’s sleep."
+          tone="ink"
+        >
+          <Faith />
+          <Block title="Before sleep" he="תוספי ערב">
+            <SuppList items={SUPPLEMENTS_EVENING} />
+          </Block>
+        </Chapter>
+
+        <Chapter
+          id="night"
           title="Vision 38"
           he="הצלחות לגיל 38"
-          lede="Written in the present tense, as things already true — the ledger of the man I am walking toward."
-          tone="dawn"
+          lede="The last thoughts before sleep — ten goals, written in the present tense, as the horizon I fall asleep toward."
+          tone="night"
         >
           <Vision />
         </Chapter>
