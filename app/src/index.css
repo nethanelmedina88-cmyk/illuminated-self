@@ -459,6 +459,14 @@ main {
   border-color: var(--accent);
 }
 
+.backup-export {
+  bottom: 130px;
+}
+
+.backup-import {
+  bottom: 74px;
+}
+
 /* ———— narration play buttons (KC101) ———— */
 
 .play-btn {

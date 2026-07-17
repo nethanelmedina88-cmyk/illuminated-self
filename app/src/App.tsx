@@ -9,6 +9,7 @@ import {
   ExternalLink,
   CloudSun,
   Compass,
+  Download,
   Dumbbell,
   Feather,
   Flame,
@@ -34,6 +35,7 @@ import {
   Sun,
   Table,
   Sunrise,
+  Upload,
   Sunset,
   Waves,
   Wind,
@@ -324,6 +326,99 @@ function ThemeToggle() {
     >
       {next === 'dark' ? <Moon size={19} strokeWidth={1.75} /> : <Sun size={19} strokeWidth={1.75} />}
     </button>
+  )
+}
+
+function BackupTools() {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const PREFIXES = ['train-', 'eaten-', 'cut-', 'morning-']
+  const EXACT = ['theme', 'vision38-ledger']
+
+  const collect = () => {
+    const entries: Record<string, string> = {}
+    try {
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const k = window.localStorage.key(i)
+        if (!k) continue
+        if (EXACT.includes(k) || PREFIXES.some((p) => k.startsWith(p))) {
+          const v = window.localStorage.getItem(k)
+          if (v != null) entries[k] = v
+        }
+      }
+    } catch {
+      /* storage unavailable */
+    }
+    return entries
+  }
+
+  const exportBackup = () => {
+    const entries = collect()
+    if (Object.keys(entries).length === 0) {
+      window.alert('No tracking saved on this device yet · אין עדיין נתונים שמורים במכשיר הזה')
+      return
+    }
+    const payload = { site: 'illuminated-self', exportedAt: new Date().toISOString(), entries }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `illuminated-self-backup-${payload.exportedAt.slice(0, 10)}.json`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
+
+  const importBackup: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const f = e.target.files?.[0]
+    e.target.value = ''
+    if (!f) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const p = JSON.parse(String(reader.result))
+        if (p?.site !== 'illuminated-self' || p.entries == null || typeof p.entries !== 'object') {
+          window.alert('Not a valid backup file · הקובץ אינו קובץ גיבוי תקין')
+          return
+        }
+        if (!window.confirm('Restore will replace the tracking on this device. Continue? · השחזור יחליף את המעקב במכשיר הזה')) {
+          return
+        }
+        Object.entries(p.entries as Record<string, string>).forEach(([k, v]) => {
+          try {
+            window.localStorage.setItem(k, String(v))
+          } catch {
+            /* ignore */
+          }
+        })
+        window.location.reload()
+      } catch {
+        window.alert('Not a valid backup file · הקובץ אינו קובץ גיבוי תקין')
+      }
+    }
+    reader.readAsText(f)
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className="theme-toggle backup-export"
+        onClick={exportBackup}
+        title="Download tracking backup · גיבוי המעקב"
+        aria-label="Download tracking backup"
+      >
+        <Download size={18} strokeWidth={1.75} />
+      </button>
+      <button
+        type="button"
+        className="theme-toggle backup-import"
+        onClick={() => fileRef.current?.click()}
+        title="Restore from backup · שחזור מגיבוי"
+        aria-label="Restore tracking from backup"
+      >
+        <Upload size={18} strokeWidth={1.75} />
+      </button>
+      <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={importBackup} />
+    </>
   )
 }
 
@@ -1208,6 +1303,7 @@ export default function App() {
       <Rail active={active} />
       <ChipBar active={active} />
       <ThemeToggle />
+      <BackupTools />
       <main>
         <Hero />
 
