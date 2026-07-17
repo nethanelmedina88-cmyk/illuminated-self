@@ -184,11 +184,16 @@
         .catch(function (e) {
           state('err')
           console.warn('[cloud-sync] pull failed', e)
-          alert(
-            'הסנכרון נכשל בקריאת הענן. ייתכן שחוקי Firestore חוסמים - ספר לי ואתקן. (' +
-              (e && e.code ? e.code : e) +
-              ')',
-          )
+          try {
+            if (!sessionStorage.getItem('__cloudsync_alerted')) {
+              sessionStorage.setItem('__cloudsync_alerted', '1')
+              alert(
+                'ההתחברות הצליחה, אבל הענן עדיין חסום (' +
+                  (e && e.code ? e.code : e) +
+                  ').\n\nנשאר צעד אחרון אחד: לפרסם את חוקי ההרשאות בקונסולת Firebase (פרויקט aniamiti) - ההוראות המדויקות נמצאות אצל קלוד.\n\nההודעה הזו מופיעה פעם אחת בלבד.',
+              )
+            }
+          } catch (_) {}
         })
     }
 
