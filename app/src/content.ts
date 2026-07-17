@@ -787,6 +787,30 @@ export const VISION: Goal[] = [
   },
 ]
 
+/* More projects — links in the rail */
+
+export interface Project {
+  he: string
+  en: string
+  url: string
+  icon: string
+}
+
+export const PROJECTS: Project[] = [
+  {
+    he: 'האני המואר',
+    en: 'Daily affirmations',
+    url: 'https://nethanelmedina88-cmyk.github.io/haani-hamuar/',
+    icon: 'sparkles',
+  },
+  {
+    he: 'MediLab מעקב',
+    en: 'Training tracker',
+    url: 'https://nethanelmedina88-cmyk.github.io/coach-medina/',
+    icon: 'activity',
+  },
+]
+
 /* Navigation — the arc of the day */
 
 export const NAV = [

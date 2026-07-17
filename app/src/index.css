@@ -362,8 +362,73 @@ main {
   color: var(--accent);
 }
 
-.rail-foot {
+.rail-projects {
   margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rail-projects-head {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+  margin-bottom: 6px;
+}
+
+.rail-projects-head [lang='he'] {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.rail-projects a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.rail-projects a:hover {
+  color: var(--text);
+  background: var(--card);
+}
+
+.rail-project-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.rail-project-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rail-project-label [lang='he'] {
+  font-size: 0.86rem;
+  color: var(--text);
+}
+
+.rail-project-en {
+  font-size: 0.68rem;
+  color: var(--faint);
+}
+
+.rail-project-ext {
+  margin-left: auto;
+  color: var(--faint);
+  flex-shrink: 0;
+}
+
+.rail-foot {
+  margin-top: 14px;
   color: var(--faint);
   font-size: 1.05rem;
 }
@@ -2327,6 +2392,40 @@ main {
   color: var(--ink-muted);
   font-size: 0.95rem;
   margin-top: 4px;
+}
+
+.foot-projects {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.foot-projects a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--ink-text);
+  font-size: 0.86rem;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+.foot-projects a svg:first-child {
+  color: var(--gold-on-ink);
+}
+
+.foot-projects a svg:last-child {
+  color: #8d8269;
+}
+
+.foot-projects a:hover {
+  border-color: var(--gold-on-ink);
+  color: var(--gold-on-ink);
 }
 
 .foot-note {

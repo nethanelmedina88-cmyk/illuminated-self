@@ -1,10 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
+  Activity,
   ArrowLeft,
   ArrowRight,
   BookOpen,
   Check,
   ChevronDown,
+  ExternalLink,
   CloudSun,
   Compass,
   Dumbbell,
@@ -28,6 +30,7 @@ import {
   Scale,
   ShieldCheck,
   Smile,
+  Sparkles,
   Sun,
   Sunrise,
   Sunset,
@@ -43,6 +46,7 @@ import {
   MORNING,
   NAV,
   NUTRITION,
+  PROJECTS,
   PROTEIN_ROTATION,
   SUPPLEMENTS_EVENING,
   SUPPLEMENTS_MORNING,
@@ -83,6 +87,8 @@ const ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: n
   salad: Salad,
   'shield-check': ShieldCheck,
   'phone-off': PhoneOff,
+  sparkles: Sparkles,
+  activity: Activity,
 }
 
 function Icon({ name, size = 20, className }: { name: string; size?: number; className?: string }) {
@@ -342,6 +348,26 @@ function Rail({ active }: { active: string }) {
           </li>
         ))}
       </ul>
+      <div className="rail-projects">
+        <p className="rail-projects-head">
+          More projects ·{' '}
+          <span lang="he" dir="rtl">
+            עוד פרויקטים
+          </span>
+        </p>
+        {PROJECTS.map((p) => (
+          <a key={p.url} href={p.url} target="_blank" rel="noopener noreferrer">
+            <Icon name={p.icon} size={15} className="rail-project-icon" />
+            <span className="rail-project-label">
+              <span lang="he" dir="rtl">
+                {p.he}
+              </span>
+              <span className="rail-project-en">{p.en}</span>
+            </span>
+            <ExternalLink size={12} strokeWidth={1.75} className="rail-project-ext" />
+          </a>
+        ))}
+      </div>
       <div className="rail-foot" lang="he" dir="rtl">
         האני המואר
       </div>
@@ -1268,6 +1294,17 @@ export default function App() {
             משמעת היום — תוצאות מחר
           </p>
           <p className="foot-en">Discipline today — results tomorrow.</p>
+          <div className="foot-projects">
+            {PROJECTS.map((p) => (
+              <a key={p.url} href={p.url} target="_blank" rel="noopener noreferrer">
+                <Icon name={p.icon} size={14} />
+                <span lang="he" dir="rtl">
+                  {p.he}
+                </span>
+                <ExternalLink size={11} strokeWidth={1.75} />
+              </a>
+            ))}
+          </div>
           <p className="foot-note">Written from my own words · The Illuminated Self</p>
         </footer>
       </main>
