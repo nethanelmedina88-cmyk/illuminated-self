@@ -8,5 +8,15 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script data-cloud-config>
+      window.__CLOUD_SYNC_CONFIG = {
+        field: 'illuminatedSelf',
+        prefixes: ['train-', 'eaten-', 'cut-', 'morning-'],
+        exact: ['vision38-ledger'],
+        corner: 'right',
+        bottom: '186px',
+      }
+    </script>
+    <script defer src="./cloud-sync.js" data-cloud-sync></script>
   </body>
 </html>
