@@ -32,6 +32,7 @@ import {
   Smile,
   Sparkles,
   Sun,
+  Table,
   Sunrise,
   Sunset,
   Waves,
@@ -89,6 +90,7 @@ const ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: n
   'phone-off': PhoneOff,
   sparkles: Sparkles,
   activity: Activity,
+  table: Table,
 }
 
 function Icon({ name, size = 20, className }: { name: string; size?: number; className?: string }) {

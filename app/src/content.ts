@@ -809,6 +809,12 @@ export const PROJECTS: Project[] = [
     url: 'https://nethanelmedina88-cmyk.github.io/coach-medina/',
     icon: 'activity',
   },
+  {
+    he: 'MediLab חדר בקרה',
+    en: 'Launch mission control',
+    url: 'https://nethanelmedina88-cmyk.github.io/medilab-mission-control/',
+    icon: 'table',
+  },
 ]
 
 /* Navigation — the arc of the day */
