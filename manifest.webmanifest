@@ -1,0 +1,25 @@
+{
+  "name": "The Illuminated Self · האני המואר",
+  "short_name": "Illuminated",
+  "description": "A personal charter: nine values, one deliberate day from dawn to night, and the Vision-38 horizon.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1522",
+  "theme_color": "#0b1522",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["lifestyle", "health", "productivity"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "The Nine Values", "short_name": "Values", "url": "./#values", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Noon · training and fuel", "short_name": "Noon", "url": "./#noon", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Vision 38", "short_name": "Vision", "url": "./#night", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}
