@@ -1171,7 +1171,8 @@ html.ctx-open .bottomnav {
   margin-top: var(--sp-10);
 }
 
-.hero-cta .btn {
+
+.hero-cta .btn:not(.ghost-ink) {
   background: linear-gradient(180deg, #f0bd66, #e2a53c);
   color: #0b1522;
 }
@@ -3077,6 +3078,122 @@ html.ctx-open .bottomnav {
 @media (min-width: 1140px) {
   .toast {
     bottom: var(--sp-8);
+  }
+}
+
+/* ———— install ———— */
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+.btn.ghost-ink {
+  background: transparent;
+  color: var(--ink-strong);
+  box-shadow: inset 0 0 0 1px rgba(234, 225, 203, 0.24);
+}
+
+.btn.ghost-ink:active {
+  background: rgba(234, 225, 203, 0.1);
+  filter: none;
+}
+
+.btn[aria-busy='true'],
+.setting-row[aria-busy='true'] {
+  pointer-events: none;
+}
+
+.btn[aria-busy='true'] {
+  color: transparent !important;
+}
+
+.btn[aria-busy='true'] svg {
+  opacity: 0;
+}
+
+.btn[aria-busy='true']::after,
+.setting-row[aria-busy='true'] .setting-action::after {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+
+.btn[aria-busy='true']::after {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  color: var(--ink-strong);
+}
+
+.setting-row[aria-busy='true'] .setting-action {
+  font-size: 0;
+}
+
+.setting-row + .setting-row,
+.setting-row + .install-hint + .setting-row {
+  margin-top: var(--sp-2);
+}
+
+.setting-row .action-icon {
+  color: var(--action);
+}
+
+.setting-row .ok-icon {
+  color: var(--success);
+}
+
+.setting-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-full);
+  background: var(--action);
+  color: var(--on-action);
+  font-size: var(--fs-2);
+  font-weight: 500;
+}
+
+.setting-row:disabled {
+  color: var(--muted);
+  box-shadow: none;
+  transform: none;
+}
+
+.install-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1);
+  margin: var(--sp-2) 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--action-soft);
+  color: var(--text);
+  font-size: var(--fs-2);
+  line-height: 1.5;
+}
+
+.install-hint b {
+  font-weight: 500;
+  color: var(--text-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn.ghost-ink:hover {
+    background: rgba(234, 225, 203, 0.08);
+    filter: none;
+  }
+
+  .setting-row:not(:disabled):hover {
+    background: var(--action-soft);
   }
 }
 

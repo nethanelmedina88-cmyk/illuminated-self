@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Clock,
   Copy,
+  Download,
   ExternalLink,
   CloudSun,
   Compass,
@@ -31,6 +32,7 @@ import {
   Quote,
   Salad,
   Scale,
+  Share,
   Share2,
   ShieldCheck,
   Smile,
@@ -577,6 +579,98 @@ function ThemeSetting({ theme, onToggle }: { theme: 'light' | 'dark'; onToggle: 
   )
 }
 
+/* ---------- install as an app ---------- */
+
+function isStandalone() {
+  const nav = navigator as Navigator & { standalone?: boolean }
+  return window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true
+}
+
+function useInstall() {
+  const toast = useContext(ToastContext)
+  const [prompt, setPrompt] = useState(() => window.__installPrompt ?? null)
+  const [installed, setInstalled] = useState(isStandalone)
+  const [busy, setBusy] = useState(false)
+  useEffect(() => {
+    const ready = () => setPrompt(window.__installPrompt ?? null)
+    const done = () => {
+      setInstalled(true)
+      setPrompt(null)
+      toast('Installed · the icon is on your home screen')
+    }
+    window.addEventListener('install-ready', ready)
+    window.addEventListener('appinstalled', done)
+    return () => {
+      window.removeEventListener('install-ready', ready)
+      window.removeEventListener('appinstalled', done)
+    }
+  }, [toast])
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
+  const install = async () => {
+    if (!prompt) return
+    setBusy(true)
+    try {
+      await prompt.prompt()
+      const choice = await prompt.userChoice
+      window.__installPrompt = undefined
+      setPrompt(null)
+      if (choice.outcome !== 'accepted') toast('Install cancelled · you can do it any time from here')
+    } catch {
+      /* the browser refused: keep the button for another try */
+    } finally {
+      setBusy(false)
+    }
+  }
+  return { canPrompt: !!prompt, installed, ios, busy, install }
+}
+
+/** Install row: one tap where the browser allows it, clear steps where it does not */
+function InstallSetting() {
+  const { canPrompt, installed, ios, busy, install } = useInstall()
+  const [open, setOpen] = useState(false)
+  if (installed) {
+    return (
+      <button type="button" className="setting-row" disabled>
+        <Check size={20} strokeWidth={2} className="ok-icon" />
+        <span className="setting-name">Installed on this device</span>
+      </button>
+    )
+  }
+  return (
+    <>
+      <button
+        type="button"
+        className="setting-row"
+        aria-busy={busy}
+        aria-expanded={canPrompt ? undefined : open}
+        onClick={() => (canPrompt ? install() : setOpen((o) => !o))}
+      >
+        <Download size={20} strokeWidth={1.75} className="action-icon" />
+        <span className="setting-name">
+          Install the app ·{' '}
+          <span lang="he" dir="rtl">
+            התקנה למסך הבית
+          </span>
+        </span>
+        <span className="setting-action">{canPrompt ? 'Install' : open ? 'Hide' : 'How'}</span>
+      </button>
+      {!canPrompt && open && (
+        <p className="install-hint">
+          {ios ? (
+            <>
+              Tap <Share size={16} strokeWidth={2} aria-label="Share" /> Share, then <b>Add to Home Screen</b>
+            </>
+          ) : (
+            <>
+              Open the browser menu <b>⋮</b> and choose <b>Install app</b> or <b>Add to Home screen</b>
+            </>
+          )}
+        </p>
+      )}
+    </>
+  )
+}
+
 function ProjectLinks() {
   return (
     <div className="project-links">
@@ -640,6 +734,7 @@ function Rail({ active, theme, onTheme }: { active: string; theme: 'light' | 'da
         ))}
       </ul>
       <div className="rail-bottom">
+        <InstallSetting />
         <ThemeSetting theme={theme} onToggle={onTheme} />
         <div id="cloud-host-rail" className="cloud-host" />
         <p className="label">
@@ -854,6 +949,7 @@ function SectionsSheet({
         </div>
         <div className="sheet-group">
           <p className="label">Settings</p>
+          <InstallSetting />
           <ThemeSetting theme={theme} onToggle={onTheme} />
           <div id="cloud-host-sheet" className="cloud-host" />
         </div>
@@ -1022,9 +1118,21 @@ function Hero() {
             Begin the day
             <ChevronDown size={20} strokeWidth={2} />
           </a>
+          <HeroInstall />
         </div>
       </div>
     </header>
+  )
+}
+
+function HeroInstall() {
+  const { canPrompt, installed, busy, install } = useInstall()
+  if (installed || !canPrompt) return null
+  return (
+    <button type="button" className="btn ghost-ink" aria-busy={busy} onClick={install}>
+      <Download size={20} strokeWidth={2} />
+      Install the app
+    </button>
   )
 }
 
@@ -1763,6 +1871,11 @@ export default function App() {
     if (adding) toastState.show(`Session done · ${trainDone.length + 1} / ${totalSessions} this week`)
   }
   const narration = useNarrationProvider()
+
+  useEffect(() => {
+    const id = window.location.hash.slice(1)
+    if (id && document.getElementById(id)) window.setTimeout(() => scrollToId(id), 300)
+  }, [])
 
   return (
     <NarrationContext.Provider value={narration}>
