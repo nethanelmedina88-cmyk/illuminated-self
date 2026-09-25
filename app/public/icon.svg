@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#040B16"/>
+      <stop offset=".34" stop-color="#0A1729"/>
+      <stop offset=".54" stop-color="#1B3552"/>
+      <stop offset=".62" stop-color="#34506A"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A5A6C"/>
+      <stop offset=".45" stop-color="#16384A"/>
+      <stop offset="1" stop-color="#081725"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="256" cy="318" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD27A" stop-opacity=".78"/>
+      <stop offset=".3" stop-color="#F0A040" stop-opacity=".36"/>
+      <stop offset=".7" stop-color="#BE6228" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#BE6228" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sun" cx="256" cy="278" r="116" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF1C9"/>
+      <stop offset=".55" stop-color="#F7C865"/>
+      <stop offset="1" stop-color="#E2A53C"/>
+    </radialGradient>
+    <linearGradient id="ray" x1="0" y1="128" x2="0" y2="318" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFE1A0"/>
+      <stop offset="1" stop-color="#E2A53C"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FAC35C" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#FFE3A1"/>
+      <stop offset="1" stop-color="#FAC35C" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="shim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#F7C865" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#FFE1A0"/>
+      <stop offset="1" stop-color="#F7C865" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="haze" cx="256" cy="318" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 318) scale(300 46) translate(-256 -318)">
+      <stop offset="0" stop-color="#FFD98C" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#FFD98C" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="column" cx="256" cy="318" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 318) scale(110 190) translate(-256 -318)">
+      <stop offset="0" stop-color="#FFD27A" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#FFD27A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".22"/>
+      <stop offset=".25" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity=".06"/>
+    </linearGradient>
+    <clipPath id="above"><rect x="0" y="0" width="512" height="318"/></clipPath>
+    <clipPath id="tile"><rect width="512" height="512" rx="112"/></clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="512" height="512" fill="url(#sky)"/>
+    <rect y="318" width="512" height="194" fill="url(#sea)"/>
+    <circle cx="118" cy="96" r="3.2" fill="#FFF3D6" opacity="0.9"/><circle cx="392" cy="78" r="2.6" fill="#FFF3D6" opacity="0.75"/><circle cx="438" cy="150" r="2" fill="#FFF3D6" opacity="0.55"/><circle cx="70" cy="176" r="2" fill="#FFF3D6" opacity="0.5"/><circle cx="300" cy="58" r="1.8" fill="#FFF3D6" opacity="0.5"/>
+    <rect width="512" height="512" fill="url(#glow)"/>
+    <rect y="318" width="512" height="194" fill="url(#column)"/>
+    <rect width="512" height="512" fill="url(#haze)"/>
+    <g clip-path="url(#above)">
+      <g stroke="url(#ray)" stroke-width="13" stroke-linecap="round">
+    <line x1="134.3" y1="285.4" x2="86.0" y2="272.4"/>
+    <line x1="159.5" y1="237.0" x2="121.2" y2="204.9"/>
+    <line x1="202.8" y1="203.8" x2="181.6" y2="158.5"/>
+    <line x1="256.0" y1="192.0" x2="256.0" y2="142.0"/>
+    <line x1="309.2" y1="203.8" x2="330.4" y2="158.5"/>
+    <line x1="352.5" y1="237.0" x2="390.8" y2="204.9"/>
+    <line x1="377.7" y1="285.4" x2="426.0" y2="272.4"/>
+      </g>
+      <circle cx="256" cy="318" r="96" fill="url(#sun)"/>
+    </g>
+    <rect x="171.0" y="342.0" width="170" height="7" rx="3.5" fill="url(#shim)" opacity="0.9"/><rect x="190.0" y="364.0" width="132" height="7" rx="3.5" fill="url(#shim)" opacity="0.75"/><rect x="208.0" y="386.0" width="96" height="7" rx="3.5" fill="url(#shim)" opacity="0.6"/><rect x="224.0" y="408.0" width="64" height="7" rx="3.5" fill="url(#shim)" opacity="0.45"/><rect x="238.0" y="428.0" width="36" height="7" rx="3.5" fill="url(#shim)" opacity="0.32"/>
+    <rect x="24" y="316.5" width="464" height="3" fill="url(#line)"/>
+  </g>
+  <rect x="1" y="1" width="510" height="510" rx="111" fill="none" stroke="url(#edge)" stroke-width="2"/>
+</svg>
